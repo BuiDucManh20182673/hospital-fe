@@ -82,6 +82,7 @@ function Medicine() {
       {context}
       {contextHolder}
       <ManageTemplate
+        searchText="Nhập tên thuốc"
         callbackAdd={() => {
           setSetvice({
             id: 0,

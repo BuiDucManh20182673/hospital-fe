@@ -31,6 +31,7 @@ function App() {
         <Route path="login" element={<Login />} />
         <Route path="forget-password" element={<ForgetPassword />} />
         <Route path="register" element={<Register />} />
+
         <Route path="patient" element={<PaientDashboard />}>
           <Route path="profile" element={<Profile />}></Route>
           <Route path="service" element={<ServiceRegister />}></Route>

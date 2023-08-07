@@ -16,6 +16,7 @@ function DashBoard({ items }) {
   //   }
   // }, []);
   const { userInformation } = useUserInformation();
+  console.log(userInformation);
 
   const [collapsed, setCollapsed] = useState(false);
   const {

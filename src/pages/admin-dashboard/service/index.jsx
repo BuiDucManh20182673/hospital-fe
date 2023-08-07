@@ -83,11 +83,15 @@ function Service() {
     }
   };
 
+  console.log(service);
+
   return (
     <PageTemplate>
       {context}
       {contextHolder}
+
       <ManageTemplate
+        searchText="Nhập tên dịch vụ"
         callbackAdd={() => {
           setSetvice({
             id: 0,

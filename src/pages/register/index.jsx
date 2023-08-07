@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import "./index.scss";
 import { Link, useNavigate } from "react-router-dom";
 import { Button, Col, DatePicker, Form, Input, Row, Select, notification } from "antd";
@@ -17,7 +17,8 @@ export default function Register() {
   const [code, setCode] = useState("");
   const [isCheckOTP, setIsCheckedOTP] = useState(false);
   const [isPhoneInputDisabled, setIsPhoneInputDisabled] = useState(false);
-  
+  const [disable, setDisable] = useState(true);
+
   const [form] = useForm();
   const sendOtp = () => {
     let verifier = appVerifier;
@@ -126,6 +127,20 @@ export default function Register() {
     return number;
   }
 
+  // Custom validation function to check if the phone number is in Vietnamese format
+  const validateVietnamesePhoneNumber = (_, value) => {
+    const vietnamesePhoneNumberRegex = /(03|05|07|08|09|01[2|6|8|9])+([0-9]{8})\b/; // Vietnamese phone number format
+    if (!value || vietnamesePhoneNumberRegex.test(value)) {
+      return Promise.resolve();
+    }
+    return Promise.reject("Please enter a valid Vietnamese phone number!");
+  };
+
+  const validateVietnamesePhoneNumber2 = (value) => {
+    const vietnamesePhoneNumberRegex = /(03|05|07|08|09|01[2|6|8|9])+([0-9]{8})\b/; // Vietnamese phone number format
+    return vietnamesePhoneNumberRegex.test(value);
+  };
+
   return (
     <div className="register">
       {contextHolder}
@@ -155,7 +170,6 @@ export default function Register() {
           <Row gutter={16}>
             <Col span={12}>
               <Form.Item
-                
                 name="fullName"
                 rules={[
                   {
@@ -164,7 +178,7 @@ export default function Register() {
                   },
                 ]}
               >
-                <Input  prefix={<UserOutlined />} placeholder="Full Name" />
+                <Input prefix={<UserOutlined />} placeholder="Full Name" />
               </Form.Item>
             </Col>
             <Col span={12}>
@@ -195,9 +209,19 @@ export default function Register() {
                     required: true,
                     message: "Please enter your phone number!",
                   },
+                  {
+                    validator: validateVietnamesePhoneNumber,
+                  },
                 ]}
               >
-                <Input disabled={isPhoneInputDisabled} prefix={<PhoneOutlined />} placeholder="Phone Number" />
+                <Input
+                  disabled={isPhoneInputDisabled}
+                  prefix={<PhoneOutlined />}
+                  placeholder="Phone Number"
+                  onChange={(e) => {
+                    setDisable(!validateVietnamesePhoneNumber2(e.target.value));
+                  }}
+                />
               </Form.Item>
             </Col>
             {confirmationResult && !isCheckOTP && (
@@ -207,7 +231,7 @@ export default function Register() {
                   rules={[
                     {
                       required: true,
-                      message: "Please enter your phone number!",
+                      message: "Please enter code!",
                     },
                   ]}
                 >
@@ -229,7 +253,7 @@ export default function Register() {
                     Check OTP
                   </Button>
                 ) : (
-                  <Button style={{ width: "100%" }} onClick={sendOtp}>
+                  <Button style={{ width: "100%" }} onClick={sendOtp} disabled={disable}>
                     Send OTP
                   </Button>
                 ))}

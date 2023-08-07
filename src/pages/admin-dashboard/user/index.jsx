@@ -25,6 +25,14 @@ function User() {
     setIsModalOpen(false);
   };
 
+  const validateVietnamesePhoneNumber = (_, value) => {
+    const vietnamesePhoneNumberRegex = /(03|05|07|08|09|01[2|6|8|9])+([0-9]{8})\b/; // Vietnamese phone number format
+    if (!value || vietnamesePhoneNumberRegex.test(value)) {
+      return Promise.resolve();
+    }
+    return Promise.reject("Please enter a valid Vietnamese phone number!");
+  };
+
   function generateRandomPassword(length) {
     const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_-+=<>?";
     let password = "";
@@ -156,6 +164,9 @@ function User() {
                   {
                     required: true,
                     message: "Please enter your phone number!",
+                  },
+                  {
+                    validator: validateVietnamesePhoneNumber,
                   },
                 ]}
               >
