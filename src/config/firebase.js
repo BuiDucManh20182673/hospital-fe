@@ -9,13 +9,13 @@ import { RecaptchaVerifier, getAuth } from "firebase/auth";
 // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
-  apiKey: "AIzaSyCJkL3ckpKHcwKchiv5mTCBmJO2bb0931U",
-  authDomain: "hospital-dcf21.firebaseapp.com",
-  projectId: "hospital-dcf21",
-  storageBucket: "hospital-dcf21.appspot.com",
-  messagingSenderId: "540487967654",
-  appId: "1:540487967654:web:c01d580d00c785b251a567",
-  measurementId: "G-B86CMXXEGZ",
+  apiKey: "AIzaSyC12u4tT6ugyic7hVUgrUvPidkujLa6IqU",
+  authDomain: "otp-test-c1490.firebaseapp.com",
+  projectId: "otp-test-c1490",
+  storageBucket: "otp-test-c1490.appspot.com",
+  messagingSenderId: "709903048410",
+  appId: "1:709903048410:web:c6b24b7d3496f3eddf0fe3",
+  measurementId: "G-W5QSFRQJZS",
 };
 
 // Initialize Firebase

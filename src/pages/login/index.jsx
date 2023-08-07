@@ -63,6 +63,9 @@ export default function Login() {
           >
             <Input.Password />
           </Form.Item>
+
+          <Link to={"/forget-password"}>Forgot password? reset password.</Link>
+
           <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
             <Button type="primary" htmlType="submit">
               Login

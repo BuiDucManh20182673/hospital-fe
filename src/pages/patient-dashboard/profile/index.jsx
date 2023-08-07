@@ -18,6 +18,7 @@ const ProfileUpdateForm = ({ initialValues, onSubmit }) => {
   const [api, contextHolder] = notification.useNotification();
 
   const onFinish = async (values) => {
+    console.log(values);
     const formattedDate = dayjs(values.dateOfBirth).format("DD/MM/YYYY");
     values.id = userInformation.id;
     values.password = "123";
@@ -38,6 +39,7 @@ const ProfileUpdateForm = ({ initialValues, onSubmit }) => {
   };
 
   useEffect(() => {
+    console.log(">>>>useEffect",userInformation);
     const fetch = async () => {
       const response = await myAxios.get(`/account/${userInformation.id}`);
       setProfile(response.data.data);
