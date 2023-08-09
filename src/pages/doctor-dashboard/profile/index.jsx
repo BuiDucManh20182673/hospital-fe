@@ -49,7 +49,7 @@ const ProfileUpdateForm = ({ initialValues, onSubmit }) => {
       form.setFieldsValue(response.data.data);
     };
     userInformation && fetch();
-  }, [userInformation]);
+  }, []);
 
   const items = [
     {

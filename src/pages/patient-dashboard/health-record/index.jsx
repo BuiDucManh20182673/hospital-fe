@@ -16,7 +16,7 @@ function HealthRecord() {
     };
 
     userInformation && fetch();
-  }, [userInformation]);
+  }, []);
 
   const columns = [
     {

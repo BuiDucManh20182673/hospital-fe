@@ -18,7 +18,7 @@ function History() {
       setOrders(response.data.data);
     };
     userInformation && fetch();
-  }, [userInformation]);
+  }, []);
 
   return (
     <PageTemplate>

@@ -17,7 +17,7 @@ function Schedule() {
     };
 
     userInformation && fetch();
-  }, [userInformation]);
+  }, []);
 
   //   const getListData = (value) => {
   //     console.log(value);
