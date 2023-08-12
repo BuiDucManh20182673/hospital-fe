@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from "react";
 import "./index.scss";
-import { Link, useNavigate } from "react-router-dom";
+import { Await, Link, useNavigate } from "react-router-dom";
 import { Button, Col, DatePicker, Form, Input, Row, Select, notification } from "antd";
 import myAxios from "../../config/config";
 import { UserOutlined, LockOutlined, MailOutlined, PhoneOutlined, HomeOutlined } from "@ant-design/icons";
 import { auth } from "../../config/firebase";
 import OtpInput from "react-otp-input";
+import moment from "moment";
 
 import { RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth";
 import { useForm } from "antd/es/form/Form";
@@ -20,9 +21,12 @@ export default function Register() {
   const [disable, setDisable] = useState(true);
 
   const [form] = useForm();
-  const sendOtp = () => {
+  const sendOtp = async () => {
+    const response = await myAxios.get(`/check-user/${form.getFieldValue("phone")}`);
+    if (response.status !== 200){
     let verifier = appVerifier;
     if (!appVerifier) {
+      console.log("vào if");
       verifier = new RecaptchaVerifier(auth, "sign-in-button", {
         size: "invisible",
         callback: (response) => {
@@ -34,7 +38,7 @@ export default function Register() {
     }
     try {
       signInWithPhoneNumber(auth, convertPhoneNumber(form.getFieldValue("phone")), verifier)
-        .then((confirmationResult) => {
+        .then((confirmationResult) =>  {
           // SMS sent. Prompt user to type the code from the message, then sign the
           // user in with confirmationResult.confirm(code).
           window.confirmationResult = confirmationResult;
@@ -65,6 +69,12 @@ export default function Register() {
         message: error.message,
       });
     }
+  }else{
+    api.error({
+      message: "This phone number has been registered before!",
+    });
+  }
+
   };
 
   const verify = () => {
@@ -115,7 +125,7 @@ export default function Register() {
     } catch (e) {
       api["error"]({
         message: "Duplicate",
-        description: e.response.data,
+        description: "This email address has been registered previously",
       });
     }
   };
@@ -140,7 +150,12 @@ export default function Register() {
     const vietnamesePhoneNumberRegex = /(03|05|07|08|09|01[2|6|8|9])+([0-9]{8})\b/; // Vietnamese phone number format
     return vietnamesePhoneNumberRegex.test(value);
   };
-
+  const disabledDate = (current) => {
+    // Lấy ngày hiện tại và trừ đi 10 năm
+    const tenYearsAgo = moment().subtract(10, 'years');
+  // Nếu ngày hiện tại cách ngày hôm nay 10 năm trở lại trở đi, trả về true để vô hiệu hóa ngày đó
+  return current && current > tenYearsAgo;
+  }
   return (
     <div className="register">
       {contextHolder}
@@ -300,7 +315,7 @@ export default function Register() {
                   },
                 ]}
               >
-                <DatePicker placeholder="Date of Birth" style={{ width: "100%" }} format={"DD/MM/YYYY"} />
+                <DatePicker disabledDate={disabledDate} placeholder="Date of Birth" style={{ width: "100%" }} format={"DD/MM/YYYY"} />
               </Form.Item>
             </Col>
           </Row>

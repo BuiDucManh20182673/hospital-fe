@@ -3,7 +3,7 @@ import PageTemplate from "../../../template/page-template";
 import useUserInformation from "../../../hooks/useUserInformation";
 import myAxios from "../../../config/config";
 import Title from "antd/es/skeleton/Title";
-import { Card, Collapse, Descriptions, Tag } from "antd";
+import { Button, Card, Collapse, Descriptions, Tag } from "antd";
 import { formatDate } from "../../../utils/date-time";
 import "./index.scss";
 import { renderTag } from "../../../utils/label";
@@ -25,21 +25,27 @@ function History() {
       <Title>Lịch sử đặt lịch</Title>
       {orders.map((item) => {
         return (
-          <Collapse
-            size="large"
-            items={[
-              {
-                key: "1",
-                label: (
-                  <div>
-                    {formatDate(item.testDate, "dd/MM/yyyy HH:mm")}
-                    {renderTag(item.status)}
-                  </div>
-                ),
-                children: <OrderDetail orderId={item.id} disable />,
-              },
-            ]}
-          />
+          <div className="wrapper">
+            <Collapse
+              size="large"
+              items={[
+                {
+                  key: "1",
+                  label: (
+                    <div>
+                      {formatDate(item.testDate, "dd/MM/yyyy HH:mm")}
+                      {renderTag(item.status)}
+                      
+                    </div>
+                  ),
+                  children: <OrderDetail orderId={item.id} disable />,
+                },
+              ]}
+            />
+            {item.status==="CONFIRM"&&(
+              <Button>Hủy</Button>
+            )}
+          </div>
         );
       })}
     </PageTemplate>

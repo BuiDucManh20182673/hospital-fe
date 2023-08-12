@@ -6,6 +6,7 @@ import { Button, Col, DatePicker, Form, Input, Modal, Row, Select, Tag, notifica
 import TextArea from "antd/es/input/TextArea";
 import { UserOutlined, LockOutlined, MailOutlined, PhoneOutlined, HomeOutlined } from "@ant-design/icons";
 import { useForm } from "antd/es/form/Form";
+import moment from "moment";
 
 function User() {
   const [users, setUsers] = useState([]);
@@ -104,6 +105,10 @@ function User() {
     console.log(response.data.data);
     setUsers(response.data.data);
   };
+  const disabledDate = (current)=>{
+    const tenYearsAgo = moment().subtract(10, 'years');
+    return current && current > tenYearsAgo;
+  }
 
   useEffect(() => {
     fetch();
@@ -199,7 +204,7 @@ function User() {
                   },
                 ]}
               >
-                <DatePicker placeholder="Date of Birth" style={{ width: "100%" }} format={"DD/MM/YYYY"} />
+                <DatePicker disabledDate={disabledDate} placeholder="Date of Birth" style={{ width: "100%" }} format={"DD/MM/YYYY"} />
               </Form.Item>
             </Col>
           </Row>

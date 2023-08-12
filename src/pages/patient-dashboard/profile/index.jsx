@@ -30,7 +30,8 @@ const ProfileUpdateForm = ({ initialValues, onSubmit }) => {
   };
 
   const handleChangePassword = async (values) => {
-    const response = await myAxios.put(`/password/1`, {
+    console.log(values);
+    const response = await myAxios.put(`/password/${userInformation.id}`, {
       newPassword: values.newPassword,
     });
     api["success"]({

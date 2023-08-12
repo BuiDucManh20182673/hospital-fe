@@ -101,6 +101,9 @@ const ForgetPassword = () => {
       })
       .catch((error) => {
         console.log(error);
+        api.error({
+          message: "Bad OTP",
+        });
         // User couldn't sign in (bad verification code?)
         // ...
 
@@ -112,7 +115,7 @@ const ForgetPassword = () => {
       });
   };
   const resetPassword = async () => {
-    if (form.getFieldValue("password") !== form.getFieldValue("repassword")) {
+    if (form.getFieldValue("newPassword") !== form.getFieldValue("repassword")) {
       api.error({
         message: "Password and repassword not match",
       });
@@ -120,7 +123,7 @@ const ForgetPassword = () => {
     }
     try {
       const response = await myAxios.post(`reset-password/${account.id}`, {
-        newPassword: form.getFieldValue("password"),
+        newPassword: form.getFieldValue("newPassword"),
       });
       api.success({
         message: "Reset successfully",
@@ -132,7 +135,13 @@ const ForgetPassword = () => {
       });
     }
   };
-
+  const validateVietnamesePhoneNumber = (_, value) => {
+    const vietnamesePhoneNumberRegex = /(03|05|07|08|09|01[2|6|8|9])+([0-9]{8})\b/; // Vietnamese phone number format
+    if (!value || vietnamesePhoneNumberRegex.test(value)) {
+      return Promise.resolve();
+    }
+    return Promise.reject("Please enter a valid Vietnamese phone number!");
+  };
   return (
     <div className="forget-password">
       {contextHolder}
@@ -149,6 +158,9 @@ const ForgetPassword = () => {
                   required: true,
                   message: "Please enter your phone!",
                 },
+                {
+                  validator: validateVietnamesePhoneNumber,
+                },
               ]}
             >
               <Input />
@@ -163,6 +175,7 @@ const ForgetPassword = () => {
                     required: true,
                     message: "Please enter your phone!",
                   },
+                  
                 ]}
               >
                 <Input value={code} onChange={(e) => setCode(e.target.value)} />
@@ -189,26 +202,36 @@ const ForgetPassword = () => {
           <h2>Reset password</h2>
           <Form form={form} onFinish={resetPassword}>
             <Form.Item
-              name="password"
+              name="newPassword"
               rules={[
                 {
                   required: true,
                   message: "Please enter your password!",
                 },
+                { min: 6, message: "Password must be at least 6 characters long" },
+                // {
+                //   pattern: /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$/,
+                //   message: "Password must contain at least 1 uppercase letter, 1 lowercase letter, 1 number, and 1 special character",
+                // },
               ]}
             >
-              <Input type="password" placeholder="New Password" />
+              <Input.Password  placeholder="New Password" />
             </Form.Item>
             <Form.Item
               name="repassword"
               rules={[
-                {
-                  required: true,
-                  message: "Please enter your re-password!",
-                },
+                { required: true, message: "Please confirm your new password" },
+                ({ getFieldValue }) => ({
+                  validator(_, value) {
+                    if (!value || getFieldValue("newPassword") === value) {
+                      return Promise.resolve();
+                    }
+                    return Promise.reject("Passwords do not match");
+                  },
+                }),
               ]}
             >
-              <Input type="password" placeholder="RePassword" />
+              <Input.Password  placeholder="Confirm new password" />
             </Form.Item>
             <Form.Item>
               <Button type="primary" htmlType="submit">

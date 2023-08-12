@@ -31,7 +31,7 @@ function ManageTemplate(props) {
           Thêm {title}
         </Button>
       </Row>
-      <Table dataSource={data} columns={columns} />;
+      <Table dataSource={data} columns={columns} />
     </div>
   );
 }
