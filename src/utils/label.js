@@ -2,6 +2,8 @@ import { Tag } from "antd";
 
 const renderTag = (status) => {
   switch (status) {
+    case "REJECT":
+      return <Tag color="#ff4d4f">{status}</Tag>;
     case "CONFIRM":
       return <Tag color="red">{status}</Tag>;
     case "DONE":

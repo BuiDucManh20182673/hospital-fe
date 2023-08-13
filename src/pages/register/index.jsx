@@ -3,7 +3,7 @@ import "./index.scss";
 import { Await, Link, useNavigate } from "react-router-dom";
 import { Button, Col, DatePicker, Form, Input, Row, Select, notification } from "antd";
 import myAxios from "../../config/config";
-import { UserOutlined, LockOutlined, MailOutlined, PhoneOutlined, HomeOutlined } from "@ant-design/icons";
+import { UserOutlined, LockOutlined, MailOutlined, PhoneOutlined, HomeOutlined, RedoOutlined } from "@ant-design/icons";
 import { auth } from "../../config/firebase";
 import OtpInput from "react-otp-input";
 import moment from "moment";
@@ -22,59 +22,58 @@ export default function Register() {
 
   const [form] = useForm();
   const sendOtp = async () => {
-    const response = await myAxios.get(`/check-user/${form.getFieldValue("phone")}`);
-    if (response.status !== 200){
-    let verifier = appVerifier;
-    if (!appVerifier) {
-      console.log("vào if");
-      verifier = new RecaptchaVerifier(auth, "sign-in-button", {
-        size: "invisible",
-        callback: (response) => {
-          // reCAPTCHA solved, allow signInWithPhoneNumber.
-          // onSignInSubmit();
-        },
-      });
-      setAppVerifier(verifier);
-    }
     try {
-      signInWithPhoneNumber(auth, convertPhoneNumber(form.getFieldValue("phone")), verifier)
-        .then((confirmationResult) =>  {
-          // SMS sent. Prompt user to type the code from the message, then sign the
-          // user in with confirmationResult.confirm(code).
-          window.confirmationResult = confirmationResult;
-          setConfirmationResult(confirmationResult);
-          console.log("success");
-          setIsPhoneInputDisabled(true);
-
-          // Swal.fire(
-          //   "Good job!",
-          //   "Sent OTP Success, Please enter code! ",
-          //   "success"
-          // );
-          // ...
-        })
-        .catch((error) => {
-          console.log(error);
-          // Error; SMS not sent
-          // ...
-          // Swal.fire({
-          //   icon: "error",
-          //   title: "Oops...",
-          //   text: "Something went wrong!",
-          // });
-        });
-    } catch (error) {
-      console.log(error);
+      const response = await myAxios.get(`/check-user/${form.getFieldValue("phone")}`);
       api.error({
-        message: error.message,
+        message: "This phone number has been registered before!",
       });
-    }
-  }else{
-    api.error({
-      message: "This phone number has been registered before!",
-    });
-  }
+    } catch (e) {
+      let verifier = appVerifier;
+      if (!appVerifier) {
+        console.log("vào if");
+        verifier = new RecaptchaVerifier(auth, "sign-in-button", {
+          size: "invisible",
+          callback: (response) => {
+            // reCAPTCHA solved, allow signInWithPhoneNumber.
+            // onSignInSubmit();
+          },
+        });
+        setAppVerifier(verifier);
+      }
+      try {
+        signInWithPhoneNumber(auth, convertPhoneNumber(form.getFieldValue("phone")), verifier)
+          .then((confirmationResult) => {
+            // SMS sent. Prompt user to type the code from the message, then sign the
+            // user in with confirmationResult.confirm(code).
+            window.confirmationResult = confirmationResult;
+            setConfirmationResult(confirmationResult);
+            console.log("success");
+            setIsPhoneInputDisabled(true);
 
+            // Swal.fire(
+            //   "Good job!",
+            //   "Sent OTP Success, Please enter code! ",
+            //   "success"
+            // );
+            // ...
+          })
+          .catch((error) => {
+            console.log(error);
+            // Error; SMS not sent
+            // ...
+            // Swal.fire({
+            //   icon: "error",
+            //   title: "Oops...",
+            //   text: "Something went wrong!",
+            // });
+          });
+      } catch (error) {
+        console.log(error);
+        api.error({
+          message: error.message,
+        });
+      }
+    }
   };
 
   const verify = () => {
@@ -152,10 +151,16 @@ export default function Register() {
   };
   const disabledDate = (current) => {
     // Lấy ngày hiện tại và trừ đi 10 năm
-    const tenYearsAgo = moment().subtract(10, 'years');
-  // Nếu ngày hiện tại cách ngày hôm nay 10 năm trở lại trở đi, trả về true để vô hiệu hóa ngày đó
-  return current && current > tenYearsAgo;
-  }
+    const tenYearsAgo = moment().subtract(10, "years");
+    // Nếu ngày hiện tại cách ngày hôm nay 10 năm trở lại trở đi, trả về true để vô hiệu hóa ngày đó
+    return current && current > tenYearsAgo;
+  };
+
+  const resetPhone = () => {
+    setIsPhoneInputDisabled(false);
+    setConfirmationResult(false);
+  };
+
   return (
     <div className="register">
       {contextHolder}
@@ -229,14 +234,25 @@ export default function Register() {
                   },
                 ]}
               >
-                <Input
-                  disabled={isPhoneInputDisabled}
-                  prefix={<PhoneOutlined />}
-                  placeholder="Phone Number"
-                  onChange={(e) => {
-                    setDisable(!validateVietnamesePhoneNumber2(e.target.value));
-                  }}
-                />
+                <Row gutter={5}>
+                  <Col span={isPhoneInputDisabled ? 20 : 24}>
+                    <Input
+                      disabled={isPhoneInputDisabled}
+                      prefix={<PhoneOutlined />}
+                      placeholder="Phone Number"
+                      onChange={(e) => {
+                        setDisable(!validateVietnamesePhoneNumber2(e.target.value));
+                      }}
+                    />
+                  </Col>
+                  <Col span={4}>
+                    {isPhoneInputDisabled && (
+                      <Button type="primary" onClick={resetPhone}>
+                        <RedoOutlined />
+                      </Button>
+                    )}
+                  </Col>
+                </Row>
               </Form.Item>
             </Col>
             {confirmationResult && !isCheckOTP && (
@@ -315,7 +331,12 @@ export default function Register() {
                   },
                 ]}
               >
-                <DatePicker disabledDate={disabledDate} placeholder="Date of Birth" style={{ width: "100%" }} format={"DD/MM/YYYY"} />
+                <DatePicker
+                  disabledDate={disabledDate}
+                  placeholder="Date of Birth"
+                  style={{ width: "100%" }}
+                  format={"DD/MM/YYYY"}
+                />
               </Form.Item>
             </Col>
           </Row>

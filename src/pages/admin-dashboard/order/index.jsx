@@ -79,26 +79,49 @@ function Order() {
         <Space size="middle">
           {/* Here you can add action buttons based on the record data */}
           {record.status === "CONFIRM" && (
-            <Button
-              onClick={async () => {
-                const response = await myAxios.patch(`/order/${record.id}/IN_PROCESS`);
-                api.success({
-                  message: response.data.message,
-                });
-                setOrder(
-                  order.map((item) => {
-                    if (item.id === response.data.data.id) {
-                      item = response.data.data;
-                    }
+            <>
+              <Button
+                onClick={async () => {
+                  const response = await myAxios.patch(`/order/${record.id}/IN_PROCESS`);
+                  api.success({
+                    message: response.data.message,
+                  });
+                  setOrder(
+                    order.map((item) => {
+                      if (item.id === response.data.data.id) {
+                        item = response.data.data;
+                      }
 
-                    return item;
-                  })
-                );
-              }}
-              type="primary"
-            >
-              Duyệt
-            </Button>
+                      return item;
+                    })
+                  );
+                }}
+                type="primary"
+              >
+                Duyệt
+              </Button>
+              <Button
+                danger
+                onClick={async () => {
+                  const response = await myAxios.patch(`/order/${record.id}/REJECT`);
+                  api.success({
+                    message: response.data.message,
+                  });
+                  setOrder(
+                    order.map((item) => {
+                      if (item.id === response.data.data.id) {
+                        item = response.data.data;
+                      }
+
+                      return item;
+                    })
+                  );
+                }}
+                type="primary"
+              >
+                Hủy
+              </Button>
+            </>
           )}
         </Space>
       ),

@@ -79,7 +79,15 @@ function ServiceRegister() {
         </Row>
 
         <Row gutter={16}>
-          <Form.Item name="services" rules={[{ validator: validateNotNull }]}>
+          <Form.Item
+            name="services"
+            rules={[
+              {
+                required: true,
+                message: "This field is required.",
+              },
+            ]}
+          >
             <Checkbox.Group>
               {service.map((item) => (
                 <Col key={item.id} span={6}>

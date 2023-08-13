@@ -2,9 +2,27 @@ import React, { useEffect, useState } from "react";
 import PageTemplate from "../../../template/page-template";
 import { useParams } from "react-router-dom";
 import myAxios from "../../../config/config";
-import { Button, Card, Col, Descriptions, Input, Row, Select, Table, Tabs, Tag, notification } from "antd";
+import {
+  Button,
+  Card,
+  Col,
+  Descriptions,
+  Form,
+  Input,
+  InputNumber,
+  Row,
+  Select,
+  Space,
+  Table,
+  Tabs,
+  Tag,
+  notification,
+} from "antd";
 import { formatDate } from "../../../utils/date-time";
+import { MinusCircleOutlined, PlusOutlined, DeleteOutlined } from "@ant-design/icons";
+
 import "./index.scss";
+import { useForm } from "antd/es/form/Form";
 function OrderDetail({ orderId, disable }) {
   const [disableEdit, setDisable] = useState(disable);
   const param = useParams();
@@ -14,7 +32,7 @@ function OrderDetail({ orderId, disable }) {
   const [render, setRender] = useState(0);
   const { Option } = Select;
   const [api, context] = notification.useNotification();
-
+  const [formPrescriptions] = useForm();
   useEffect(() => {
     console.log(orderDetail?.status);
     if (orderDetail?.status === "DONE") setDisable(true);
@@ -25,9 +43,21 @@ function OrderDetail({ orderId, disable }) {
       const response = await myAxios.get(`order-detail/${orderId ? orderId : param.orderId}`);
       const responseMedicine = await myAxios.get(`medicine`);
       setOrderDetail(response.data.data);
-      setData(
-        response.data.data.prescription?.prescriptionItems ? response.data.data.prescription?.prescriptionItems : []
-      );
+      if (response?.data?.data?.prescription?.prescriptionItems) {
+        const prescription = response.data.data.prescription?.prescriptionItems
+          .filter((item) => !item.deleted)
+          .map((item) => {
+            return {
+              medicineId: item.medicine.id,
+              times: item.times,
+              quantity: item.quantity,
+            };
+          });
+
+        formPrescriptions.setFieldsValue({
+          prescriptionItems: prescription,
+        });
+      }
       setMedicine(
         responseMedicine.data.data.map((item) => {
           return {
@@ -36,6 +66,7 @@ function OrderDetail({ orderId, disable }) {
           };
         })
       );
+      console.log(response.data.data);
     };
 
     fetch();
@@ -114,6 +145,23 @@ function OrderDetail({ orderId, disable }) {
               handleInputChange(index, value.target.value, "times");
             }}
           />
+        );
+      },
+    },
+    {
+      title: "",
+      render: (_, record, index) => {
+        return (
+          <Button
+            type="primary"
+            danger
+            onClick={() => {
+              data.splice(index, 1);
+              setData([...data]);
+            }}
+          >
+            <DeleteOutlined />
+          </Button>
         );
       },
     },
@@ -265,7 +313,75 @@ function OrderDetail({ orderId, disable }) {
       key: 3,
       children: (
         <Card title="Toa thuốc" style={{ margin: "20px 0" }}>
-          <Table columns={columns} dataSource={data} />
+          <Form
+            disabled={disableEdit}
+            form={formPrescriptions}
+            onFinish={async (values) => {
+              const response = await myAxios.post(`/prescription/${param.orderId}`, values);
+              setRender(render + 1);
+              api.success({
+                message: response.data.message,
+              });
+            }}
+          >
+            <Form.List name="prescriptionItems">
+              {(fields, { add, remove }) => (
+                <>
+                  {fields.map(({ key, name, ...restField }) => (
+                    <Space key={key} style={{ display: "flex", marginBottom: 8 }} align="baseline">
+                      <Form.Item
+                        {...restField}
+                        name={[name, "medicineId"]}
+                        rules={[{ required: true, message: "Nhập tên loại thuốc" }]}
+                      >
+                        <Select
+                          showSearch
+                          placeholder="Chọn loại thuốc"
+                          optionFilterProp="children"
+                          filterOption={(input, option) =>
+                            (option?.label ?? "").toLowerCase().includes(input.toLowerCase())
+                          }
+                          options={medicine}
+                        />
+                      </Form.Item>
+                      <Form.Item
+                        {...restField}
+                        name={[name, "quantity"]}
+                        rules={[{ required: true, message: "Nhập số lượng" }]}
+                      >
+                        <InputNumber placeholder="Số lượng" min={1} />
+                      </Form.Item>
+                      <Form.Item
+                        {...restField}
+                        name={[name, "times"]}
+                        rules={[{ required: true, message: "Nhập dặn dò" }]}
+                      >
+                        <Input placeholder="Dặn dò" />
+                      </Form.Item>
+                      {!disableEdit && <MinusCircleOutlined onClick={() => remove(name)} />}
+                    </Space>
+                  ))}
+                  <Form.Item>
+                    <Button type="dashed" onClick={() => add()} block icon={<PlusOutlined />}>
+                      Thêm thuốc
+                    </Button>
+                  </Form.Item>
+                </>
+              )}
+            </Form.List>
+
+            {!disableEdit && (
+              <Row
+                style={{ justifyContent: "flex-end", marginTop: 20 }}
+                onClick={() => {
+                  formPrescriptions.submit();
+                }}
+              >
+                <Button type="primary">Lưu</Button>
+              </Row>
+            )}
+          </Form>
+          {/* <Table columns={columns} dataSource={data} />
           {!orderDetail?.prescription && !disableEdit && (
             <Row style={{ justifyContent: "flex-end", marginTop: 20, gap: 20 }}>
               <Button type="primary" onClick={handleAdd}>
@@ -275,7 +391,7 @@ function OrderDetail({ orderId, disable }) {
                 Lưu
               </Button>
             </Row>
-          )}
+          )} */}
         </Card>
       ),
     },
